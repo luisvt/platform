@@ -94,12 +94,7 @@ export class EntityDataModule {
         {
           provide: DefaultDataServiceConfig,
           useValue: {
-            root: 'api',
-            delete404OK: true,
-            getDelay: 0,
-            saveDelay: 0,
-            timeout: 0,
-            pluralizeSingle: true,
+            ...new DefaultDataServiceConfig(),
             ...config.dataServiceConfig,
           } as DefaultDataServiceConfig,
         },

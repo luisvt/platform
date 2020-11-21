@@ -21,6 +21,7 @@ export const persistOps: EntityOp[] = [
   EntityOp.QUERY_LOAD,
   EntityOp.QUERY_BY_KEY,
   EntityOp.QUERY_MANY,
+  EntityOp.QUERY_PAGE,
   EntityOp.SAVE_ADD_ONE,
   EntityOp.SAVE_DELETE_ONE,
   EntityOp.SAVE_UPDATE_ONE,
@@ -120,6 +121,9 @@ export class EntityEffects {
 
       case EntityOp.QUERY_MANY:
         return service.getWithQuery(data);
+
+      case EntityOp.QUERY_PAGE:
+        return service.getPageWithQuery(data);
 
       case EntityOp.SAVE_ADD_ONE:
         return service.add(data);

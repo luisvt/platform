@@ -16,6 +16,7 @@ import { EntityDefinitionService } from '../entity-metadata/entity-definition.se
 import { EntityOp } from '../actions/entity-op';
 import { MergeStrategy } from '../actions/merge-strategy';
 import { UpdateResponseData } from '../actions/update-response-data';
+import { Page } from '../utils/interfaces';
 
 /**
  * Map of {EntityOp} to reducer method for the operation.
@@ -75,6 +76,10 @@ export class EntityCollectionReducerMethods<T> {
     [EntityOp.QUERY_MANY]: this.queryMany.bind(this),
     [EntityOp.QUERY_MANY_ERROR]: this.queryManyError.bind(this),
     [EntityOp.QUERY_MANY_SUCCESS]: this.queryManySuccess.bind(this),
+
+    [EntityOp.QUERY_PAGE]: this.queryPage.bind(this),
+    [EntityOp.QUERY_PAGE_ERROR]: this.queryPageError.bind(this),
+    [EntityOp.QUERY_PAGE_SUCCESS]: this.queryPageSuccess.bind(this),
 
     [EntityOp.SAVE_ADD_MANY]: this.saveAddMany.bind(this),
     [EntityOp.SAVE_ADD_MANY_ERROR]: this.saveAddManyError.bind(this),
@@ -287,6 +292,36 @@ export class EntityCollectionReducerMethods<T> {
     return {
       ...this.entityChangeTracker.mergeQueryResults(
         data,
+        collection,
+        mergeStrategy
+      ),
+      loading: false,
+    };
+  }
+
+  protected queryPage(
+    collection: EntityCollection<T>,
+    action: EntityAction
+  ): EntityCollection<T> {
+    return this.setLoadingTrue(collection);
+  }
+
+  protected queryPageError(
+    collection: EntityCollection<T>,
+    action: EntityAction<EntityActionDataServiceError>
+  ): EntityCollection<T> {
+    return this.setLoadingFalse(collection);
+  }
+
+  protected queryPageSuccess(
+    collection: EntityCollection<T>,
+    action: EntityAction<Page<T>>
+  ): EntityCollection<T> {
+    const data = this.extractData(action);
+    const mergeStrategy = this.extractMergeStrategy(action);
+    return {
+      ...this.entityChangeTracker.mergeQueryResults(
+        data.items,
         collection,
         mergeStrategy
       ),

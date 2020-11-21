@@ -33,7 +33,7 @@ export class HeroFormComponent implements OnInit {
     }
 
     this.heroesSvc
-      .upsert(hero)
+      .update(hero)
       .pipe(first())
       .subscribe(() => this.location.back());
   }

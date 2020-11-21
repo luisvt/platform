@@ -208,6 +208,39 @@ export class EntityCacheReducerFactory {
     return entityCache;
   }
 
+  /**
+   * Reducer to merge query sets in the form of a hash of entity data for multiple collections.
+   * @param entityCache the entity cache
+   * @param action a MergeQuerySet action with the query set and a MergeStrategy
+   */
+  protected mergeQueryPageSetReducer(
+    entityCache: EntityCache,
+    action: MergeQuerySet
+  ) {
+    // tslint:disable-next-line:prefer-const
+    let { mergeStrategy, querySet, tag } = action.payload;
+    mergeStrategy =
+      mergeStrategy === null ? MergeStrategy.PreserveChanges : mergeStrategy;
+    const entityOp = EntityOp.QUERY_PAGE_SUCCESS;
+
+    const entityNames = Object.keys(querySet);
+    entityCache = entityNames.reduce((newCache, entityName) => {
+      const payload = {
+        entityName,
+        entityOp,
+        data: querySet[entityName],
+        mergeStrategy,
+      };
+      const act: EntityAction = {
+        type: `[${entityName}] ${action.type}`,
+        payload,
+      };
+      newCache = this.applyCollectionReducer(newCache, act);
+      return newCache;
+    }, entityCache);
+    return entityCache;
+  }
+
   // #region saveEntities reducers
   protected saveEntitiesReducer(
     entityCache: EntityCache,

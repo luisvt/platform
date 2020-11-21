@@ -61,7 +61,7 @@ export interface EntityDataModuleConfig {
   // Initial EntityCache state or a function that returns that state
   initialEntityCacheState?: EntityCache | (() => EntityCache);
   pluralNames?: { [name: string]: string };
-  dataServiceConfig?: DefaultDataServiceConfig;
+  dataServiceConfig?: Partial<DefaultDataServiceConfig>;
 }
 
 /**

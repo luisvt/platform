@@ -26,6 +26,7 @@ import { EntityOp, OP_ERROR, OP_SUCCESS } from '../actions/entity-op';
 import { MergeStrategy } from '../actions/merge-strategy';
 import { QueryParams } from '../dataservices/interfaces';
 import { UpdateResponseData } from '../actions/update-response-data';
+import { Page } from '../utils/interfaces';
 
 /**
  * Dispatches EntityCollection actions to their reducers and effects (default implementation).
@@ -268,6 +269,7 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
    * with either a query parameter map or an HTTP URL query string,
    * and merge the results into the cached collection.
    * @param queryParams the query in a form understood by the server
+   * @param [options] options that influence merge behavior
    * @returns A terminating Observable of the queried entities
    * after server reports successful query or the query error.
    */
@@ -296,6 +298,47 @@ export class EntityDispatcherBase<T> implements EntityDispatcher<T> {
           return acc;
         }, [] as T[])
       ),
+      shareReplay(1)
+    );
+  }
+
+  /**
+   * Dispatch action to query remote storage for the entities that satisfy a query expressed
+   * with either a query parameter map or an HTTP URL query string,
+   * and merge the results into the cached collection.
+   * @param queryParams the query in a form understood by the server
+   * @param [options] options that influence merge behavior
+   * @returns A terminating Observable of the queried entities
+   * after server reports successful query or the query error.
+   */
+  getPageWithQuery(
+    queryParams: QueryParams | string,
+    options?: EntityActionOptions
+  ): Observable<Page<T>> {
+    options = this.setQueryEntityActionOptions(options);
+    const action = this.createEntityAction(
+      EntityOp.QUERY_PAGE,
+      queryParams,
+      options
+    );
+    this.dispatch(action);
+    return this.getResponseData$<Page<T>>(options.correlationId).pipe(
+      // Use the returned entity ids to get the entities from the collection
+      // as they might be different from the entities returned from the server
+      // because of unsaved changes (deletes or updates).
+      withLatestFrom(this.entityCollection$),
+      map(([page, collection]) => {
+        return {
+          ...page,
+          items: page.items.reduce((acc, e) => {
+            const entity = collection.entities[this.selectId(e)];
+            if (entity) {
+              acc.push(entity); // only return an entity found in the collection
+            }
+            return acc;
+          }, [] as T[]),
+        };
+      }),
       shareReplay(1)
     );
   }

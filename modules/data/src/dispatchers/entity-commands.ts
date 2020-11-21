@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import { EntityActionOptions } from '../actions/entity-action';
 import { QueryParams } from '../dataservices/interfaces';
+import { Page } from '../utils/interfaces';
 
 /** Commands that update the remote server. */
 export interface EntityServerCommands<T> {
@@ -80,6 +81,20 @@ export interface EntityServerCommands<T> {
     queryParams: QueryParams | string,
     options?: EntityActionOptions
   ): Observable<T[]>;
+
+  /**
+   * Dispatch action to query remote storage for the entities that satisfy a query expressed
+   * with either a query parameter map or an HTTP URL query string,
+   * and merge the results into the cached collection.
+   * @param queryParams the query in a form understood by the server
+   * @param [options] options that influence merge behavior
+   * @returns A terminating Observable of the queried entities
+   * after server reports successful query or the query error.
+   */
+  getPageWithQuery(
+    queryParams: QueryParams | string,
+    options?: EntityActionOptions
+  ): Observable<Page<T>>;
 
   /**
    * Dispatch action to query remote storage for all entities and

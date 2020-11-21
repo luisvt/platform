@@ -16,6 +16,7 @@ import { EntityOp } from '../actions/entity-op';
 import { EntitySelectors } from '../selectors/entity-selectors';
 import { EntitySelectors$ } from '../selectors/entity-selectors$';
 import { QueryParams } from '../dataservices/interfaces';
+import { Page } from '../utils/interfaces';
 
 // tslint:disable:member-ordering
 
@@ -225,6 +226,22 @@ export class EntityCollectionServiceBase<
     options?: EntityActionOptions
   ): Observable<T[]> {
     return this.dispatcher.getWithQuery(queryParams, options);
+  }
+
+  /**
+   * Dispatch action to query remote storage for the page of entities that satisfy a query expressed
+   * with either a query parameter map or an HTTP URL query string,
+   * and merge the results into the cached collection.
+   * @param queryParams the query in a form understood by the server
+   * @param [options] options that influence merge behavior
+   * @returns Observable of the queried entities
+   * after server reports successful query or the query error.
+   */
+  getPageWithQuery(
+    queryParams: QueryParams | string,
+    options?: EntityActionOptions
+  ): Observable<Page<T>> {
+    return this.dispatcher.getPageWithQuery(queryParams, options);
   }
 
   /**

@@ -13,5 +13,6 @@ export const entityConfig: EntityDataModuleConfig = {
   pluralNames,
   dataServiceConfig: {
     root: 'http://my-json-server.typicode.com/johnlindquist/json-server-heroes',
+    pageSizeDefaultValue: '5',
   },
 };

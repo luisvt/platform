@@ -183,6 +183,7 @@ export {
   EntityPluralNames,
   PLURAL_NAMES_TOKEN,
   Pluralizer,
+  Page,
 } from './utils/interfaces';
 export {
   defaultSelectId,

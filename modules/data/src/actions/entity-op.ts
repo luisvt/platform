@@ -19,6 +19,10 @@ export enum EntityOp {
   QUERY_MANY_SUCCESS = '@ngrx/data/query-many/success',
   QUERY_MANY_ERROR = '@ngrx/data/query-many/error',
 
+  QUERY_PAGE = '@ngrx/data/query-page',
+  QUERY_PAGE_SUCCESS = '@ngrx/data/query-page/success',
+  QUERY_PAGE_ERROR = '@ngrx/data/query-page/error',
+
   QUERY_BY_KEY = '@ngrx/data/query-by-key',
   QUERY_BY_KEY_SUCCESS = '@ngrx/data/query-by-key/success',
   QUERY_BY_KEY_ERROR = '@ngrx/data/query-by-key/error',

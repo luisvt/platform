@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { Update } from '@ngrx/entity';
+import { Page } from '../utils/interfaces';
 
 /** A service that performs REST-like HTTP data operations for an entity collection */
 export interface EntityCollectionDataService<T> {
@@ -9,6 +10,7 @@ export interface EntityCollectionDataService<T> {
   getAll(): Observable<T[]>;
   getById(id: any): Observable<T>;
   getWithQuery(params: QueryParams | string): Observable<T[]>;
+  getPageWithQuery(params: QueryParams | string): Observable<Page<T>>;
   update(update: Update<T>): Observable<T>;
   upsert(entity: T): Observable<T>;
 }

@@ -3,6 +3,7 @@ import {
   HttpClient,
   HttpErrorResponse,
   HttpParams,
+  HttpResponse,
 } from '@angular/common/http';
 
 import { Observable, of, throwError } from 'rxjs';
@@ -19,6 +20,7 @@ import {
   RequestData,
 } from './interfaces';
 import { HttpUrlGenerator } from './http-url-generator';
+import { Pluralizer, Page } from '../utils/interfaces';
 
 /**
  * A basic, generic entity data service
@@ -29,6 +31,7 @@ export class DefaultDataService<T> implements EntityCollectionDataService<T> {
   protected _name: string;
   protected delete404OK: boolean;
   protected entityName: string;
+  protected entitiesName: string;
   protected entityUrl: string;
   protected entitiesUrl: string;
   protected getDelay = 0;
@@ -43,17 +46,13 @@ export class DefaultDataService<T> implements EntityCollectionDataService<T> {
     entityName: string,
     protected http: HttpClient,
     protected httpUrlGenerator: HttpUrlGenerator,
-    config: DefaultDataServiceConfig
+    private config: DefaultDataServiceConfig,
+    pluralizer: Pluralizer
   ) {
     this._name = `${entityName} DefaultDataService`;
     this.entityName = entityName;
-    const {
-      root = 'api',
-      delete404OK = true,
-      getDelay = 0,
-      saveDelay = 0,
-      timeout: to = 0,
-    } = config;
+    this.entitiesName = pluralizer.pluralize(entityName);
+    const { root, delete404OK, getDelay, saveDelay, timeout: to } = config;
     this.delete404OK = delete404OK;
     this.entityUrl = httpUrlGenerator.entityResource(entityName, root);
     this.entitiesUrl = httpUrlGenerator.collectionResource(entityName, root);
@@ -100,6 +99,32 @@ export class DefaultDataService<T> implements EntityCollectionDataService<T> {
     return this.execute('GET', this.entitiesUrl, undefined, { params });
   }
 
+  getPageWithQuery(queryParams: QueryParams | string): Observable<Page<T>> {
+    const qParams =
+      typeof queryParams === 'string'
+        ? { fromString: queryParams }
+        : { fromObject: queryParams };
+    let params = new HttpParams(qParams);
+    const {
+      pageNumberName,
+      pageNumberDefaultValue,
+      pageSizeName,
+      pageSizeDefaultValue,
+      pageMetadataInHeaders,
+    } = this.config;
+    if (!params.has(pageNumberName)) {
+      params = params.set(pageNumberName, pageNumberDefaultValue);
+    }
+    if (!params.has(pageSizeName)) {
+      params = params.set(pageSizeName, pageSizeDefaultValue);
+    }
+    return this.execute('GET', this.entitiesUrl, undefined, {
+      params,
+      observe: pageMetadataInHeaders ? 'response' : 'body',
+      page: true,
+    });
+  }
+
   update(update: Update<T>): Observable<T> {
     const id = update && update.id;
     const updateOrError =
@@ -128,7 +153,7 @@ export class DefaultDataService<T> implements EntityCollectionDataService<T> {
       return this.handleError(req)(data);
     }
 
-    let result$: Observable<ArrayBuffer>;
+    let result$: Observable<ArrayBuffer | any>;
 
     switch (method) {
       case 'DELETE': {
@@ -140,6 +165,18 @@ export class DefaultDataService<T> implements EntityCollectionDataService<T> {
       }
       case 'GET': {
         result$ = this.http.get(url, options);
+        if (options?.observe === 'response') {
+          result$ = result$.pipe(
+            map(
+              this.config.pageMapper(
+                options,
+                this.config,
+                this.entityName,
+                this.entitiesName
+              )
+            )
+          );
+        }
         if (this.getDelay) {
           result$ = result$.pipe(delay(this.getDelay));
         }
@@ -204,7 +241,8 @@ export class DefaultDataServiceFactory {
   constructor(
     protected http: HttpClient,
     protected httpUrlGenerator: HttpUrlGenerator,
-    protected config: DefaultDataServiceConfig
+    protected config: DefaultDataServiceConfig,
+    protected pluralizer: Pluralizer
   ) {
     httpUrlGenerator.registerHttpResourceUrls(config.entityHttpResourceUrls);
   }
@@ -218,7 +256,8 @@ export class DefaultDataServiceFactory {
       entityName,
       this.http,
       this.httpUrlGenerator,
-      this.config
+      this.config,
+      this.pluralizer
     );
   }
 }

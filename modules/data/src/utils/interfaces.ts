@@ -20,3 +20,10 @@ export const PLURAL_NAMES_TOKEN = new InjectionToken<EntityPluralNames>(
 export abstract class Pluralizer {
   abstract pluralize(name: string): string;
 }
+
+export interface Page<T> {
+  number: number;
+  size: number;
+  total: number;
+  items: T[];
+}

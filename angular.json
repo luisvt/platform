@@ -675,6 +675,133 @@
         }
       },
       "schematics": {}
+    },
+    "example-ngrx-data-app": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "projects/example-ngrx-data-app",
+      "sourceRoot": "projects/example-ngrx-data-app/src",
+      "prefix": "ngrx",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/projects/example-ngrx-data-app",
+            "index": "projects/example-ngrx-data-app/src/index.html",
+            "main": "projects/example-ngrx-data-app/src/main.ts",
+            "polyfills": "projects/example-ngrx-data-app/src/polyfills.ts",
+            "tsConfig": "projects/example-ngrx-data-app/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "projects/example-ngrx-data-app/src/favicon.ico",
+              "projects/example-ngrx-data-app/src/assets"
+            ],
+            "styles": ["projects/example-ngrx-data-app/src/styles.css"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/example-ngrx-data-app/src/environments/environment.ts",
+                  "with": "projects/example-ngrx-data-app/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "example-ngrx-data-app:build"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "example-ngrx-data-app:build:production"
+            }
+          }
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "browserTarget": "example-ngrx-data-app:build"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/example-ngrx-data-app/tsconfig.app.json",
+              "projects/example-ngrx-data-app/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**",
+              "!projects/example-ngrx-data-app/**/*"
+            ]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "projects/example-ngrx-data-app/jest.config.js",
+            "tsConfig": "projects/example-ngrx-data-app/tsconfig.spec.json",
+            "passWithNoTests": true,
+            "setupFile": "projects/example-ngrx-data-app/src/test-setup.ts"
+          }
+        }
+      }
+    },
+    "example-ngrx-data-app-e2e": {
+      "root": "projects/example-ngrx-data-app-e2e",
+      "sourceRoot": "projects/example-ngrx-data-app-e2e/src",
+      "projectType": "application",
+      "architect": {
+        "e2e": {
+          "builder": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "projects/example-ngrx-data-app-e2e/cypress.json",
+            "tsConfig": "projects/example-ngrx-data-app-e2e/tsconfig.e2e.json",
+            "devServerTarget": "example-ngrx-data-app:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "example-ngrx-data-app:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/example-ngrx-data-app-e2e/tsconfig.e2e.json"
+            ],
+            "exclude": [
+              "**/node_modules/**",
+              "!projects/example-ngrx-data-app-e2e/**/*"
+            ]
+          }
+        }
+      }
     }
   },
   "schematics": {
@@ -688,6 +815,13 @@
     },
     "@schematics/angular:directive": {
       "prefix": "bc"
+    },
+    "@nrwl/angular:application": {
+      "unitTestRunner": "jest",
+      "e2eTestRunner": "cypress"
+    },
+    "@nrwl/angular:library": {
+      "unitTestRunner": "jest"
     }
   },
   "cli": {

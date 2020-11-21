@@ -80,6 +80,13 @@
     },
     "schematics-core": {
       "tags": []
+    },
+    "example-ngrx-data-app": {
+      "tags": []
+    },
+    "example-ngrx-data-app-e2e": {
+      "tags": [],
+      "implicitDependencies": ["example-ngrx-data-app"]
     }
   },
   "affected": {
